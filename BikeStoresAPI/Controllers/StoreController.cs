@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Reflection.Metadata;
 
 namespace BikeStoresAPI.Controllers
 {
@@ -14,85 +15,125 @@ namespace BikeStoresAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public IEnumerable<Store> GetStores() {
-            List<Store> lstStores = new List<Store>();
-            Utility u = new Utility();
-            DataTable dtStores = u.SqlQueryToDataTable(@"SELECT store_id, store_name, phone, email, street, city, state, zip_code FROM sales.stores");
-            foreach (DataRow dr in dtStores.Rows)
+        public IActionResult GetStores() {
+            using (BikeStoresContext context = new BikeStoresContext())
             {
-                Store store = new Store {
-                    Id = Convert.ToInt32(dr["store_id"]),
-                    Name = dr["store_name"].ToString(),
-                    Phone = dr["phone"].ToString(),
-                    Email = dr["email"].ToString(),
-                    Street = dr["street"].ToString(),
-                    City = dr["city"].ToString(),
-                    State = dr["state"].ToString(),
-                    ZipCode = dr["zip_code"].ToString()
-                };
-                lstStores.Add(store);
+                try
+                {
+                    List<Store> stores = context.Stores
+                        .ToList();
+                    return Ok(stores);
+                }
+                catch (Exception e)
+                {
+                    return NotFound(e.Message);
+                }
             }
-            return lstStores;
         }
 
         /// <summary>
         /// Get store by ID
         /// </summary>
-        /// <param name="id">store_id</param>
+        /// <param name="id">storeId</param>
         /// <returns></returns>
         [HttpGet]
         [Route("{id}")]
-        public IEnumerable<Store> GetStore([FromRoute] int id) {
-            List<Store> lstStores = new List<Store>();
-            Utility u = new Utility();
-            DataTable dtStores = u.SqlQueryToDataTable(@"SELECT store_id, store_name, phone, email, street, city, state, zip_code FROM sales.stores WHERE store_id = " + id.ToString());
-            foreach (DataRow dr in dtStores.Rows)
+        public IActionResult GetStore([FromRoute] int id) {
+            using (BikeStoresContext context = new BikeStoresContext())
             {
-                Store store = new Store
+                try
                 {
-                    Id = Convert.ToInt32(dr["store_id"]),
-                    Name = dr["store_name"].ToString(),
-                    Phone = dr["phone"].ToString(),
-                    Email = dr["email"].ToString(),
-                    Street = dr["street"].ToString(),
-                    City = dr["city"].ToString(),
-                    State = dr["state"].ToString(),
-                    ZipCode = dr["zip_code"].ToString()
-                };
-                lstStores.Add(store);
+                    Store store = context.Stores
+                        .Single(s => s.StoreId == id);
+                    return Ok(store);
+                }
+                catch (Exception e)
+                {
+                    return NotFound(e.Message);
+                }
             }
-            return lstStores;
         }
 
         /// <summary>
         /// Create a new store
         /// </summary>
-        /// <param name="store_name">store_name</param>
-        /// <param name="phone">phone</param>
-        /// <param name="email">email</param>
-        /// <param name="street">street</param>
-        /// <param name="city">city</param>
-        /// <param name="state">state</param>
-        /// <param name="zip_code">zip_code</param>
+        /// <param name="store">Store object</param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult InsertStore(string store_name, string phone, string email, string street, string city, string state, string zip_code) {
-            Utility u = new Utility();
-            bool isSucceeded = u.SqlNonQuery(@"INSERT INTO sales.stores (store_name, phone, email, street, city, state, zip_code)
-VALUES ('" + store_name + "', '" + phone + "', '" + email + "', '" + street + "', '" + city + "', '" + state + "', '" + zip_code + "')");
-            return isSucceeded ? Ok() : BadRequest();
+        public IActionResult PostStore([FromBody] Store store) {
+            using (BikeStoresContext context = new BikeStoresContext())
+            {
+                try
+                {
+                    context.Stores.Add(store);
+                    context.SaveChanges();
+                    return Ok(store);
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// Update a store
+        /// </summary>
+        /// <param name="id">storeId</param>
+        /// <param name="store_after">Store object</param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("{id}")]
+        public IActionResult UpdateStore([FromRoute] int id, [FromBody] Store store_after) {
+            using (BikeStoresContext context = new BikeStoresContext())
+            {
+                try
+                {
+                    Store store_before = context.Stores
+                        .Single(s => s.StoreId == id);
+                    store_before.StoreName = store_after.StoreName != null ? store_after.StoreName : store_before.StoreName;
+                    store_before.Phone = store_after.Phone != null ? store_after.Phone : store_before.Phone;
+                    store_before.Email = store_after.Email != null ? store_after.Email : store_before.Email;
+                    store_before.Street = store_after.Street != null ? store_after.Street : store_before.Street;
+                    store_before.City = store_after.City != null ? store_after.City : store_before.City;
+                    store_before.State = store_after.State != null ? store_after.State : store_before.State;
+                    store_before.ZipCode = store_after.ZipCode != null ? store_after.ZipCode : store_before.ZipCode;
+                    context.SaveChanges();
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+
+            }
         }
 
         /// <summary>
         /// Delete a store by ID
         /// </summary>
-        /// <param name="id">store_id</param>
+        /// <param name="id">storeId</param>
         /// <returns></returns>
         [HttpDelete]
-        public ActionResult DeleteStore(int id) {
-            Utility u = new Utility();
-            bool isSucceeded = u.SqlNonQuery(@"DELETE FROM sales.stores WHERE store_id = " + id.ToString());
-            return isSucceeded ? Ok() : BadRequest();
+        [Route("{id}")]
+        public IActionResult DeleteStore([FromRoute] int id) {
+            using (BikeStoresContext context = new BikeStoresContext())
+            {
+                try
+                {
+                    Store store = context.Stores
+                        .Single(s => s.StoreId == id);
+                    context.Remove(store);
+                    context.SaveChanges();
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+
+            }
         }
     }
 }

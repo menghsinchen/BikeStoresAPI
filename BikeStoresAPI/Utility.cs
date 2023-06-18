@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using Newtonsoft.Json;
 
-namespace BikeStoresAPI.Models
+namespace BikeStoresAPI
 {
     public class Utility
     {
@@ -13,7 +13,8 @@ namespace BikeStoresAPI.Models
         /// </summary>
         /// <param name="cmdText">Query command</param>
         /// <returns></returns>
-        public DataTable SqlQueryToDataTable(string cmdText) {
+        public DataTable SqlQueryToDataTable(string cmdText)
+        {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConnStr))
             {
@@ -29,7 +30,8 @@ namespace BikeStoresAPI.Models
                 {
                     dt.TableName = e.Message;
                 }
-                finally {
+                finally
+                {
                     if (conn.State != ConnectionState.Closed)
                     {
                         conn.Close();

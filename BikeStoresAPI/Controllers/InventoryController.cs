@@ -10,54 +10,79 @@ namespace BikeStoresAPI.Controllers
     public class InventoryController : ControllerBase
     {
         /// <summary>
-        /// Get inventory
+        /// Get inventory quantity of all products from all stores
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public string GetInventory() {
-            Utility u = new Utility();
-            string strQuery = @"SELECT
-	p.product_id,
-	p.product_name,
-	b.brand_name,
-	c.category_name,
-	s.store_id,
-	s.store_name,
-	t.quantity
-FROM production.stocks t
-JOIN sales.stores s on t.store_id = s.store_id
-JOIN production.products p ON t.product_id = p.product_id
-JOIN production.brands b ON p.brand_id = b.brand_id
-JOIN production.categories c ON p.category_id = c.category_id";
-            return u.SqlQueryToString(strQuery);
+        public IActionResult GetInventory()
+        {
+            using (BikeStoresContext context = new BikeStoresContext())
+            {
+                try
+                {
+                    var joined = from t in context.Stocks.ToList()
+                                 join s in context.Stores.ToList() on t.StoreId equals s.StoreId
+                                 join p in context.Products.ToList() on t.ProductId equals p.ProductId
+                                 join b in context.Brands.ToList() on p.BrandId equals b.BrandId
+                                 join c in context.Categories.ToList() on p.CategoryId equals c.CategoryId
+                                 select new { p.ProductId, p.ProductName, b.BrandName, c.CategoryName, s.StoreId, s.StoreName, t.Quantity };
+                    return Ok(joined);
+                }
+                catch (Exception e)
+                {
+                    return NotFound(e.Message);
+                }
+
+            }
+        }
+
+        [HttpGet]
+        [Route("product/{id}")]
+        public IActionResult GetProductInventory(int id) {
+            using (BikeStoresContext context = new BikeStoresContext())
+            {
+                try
+                {
+                    var filtered = from t in context.Stocks.ToList()
+                                   join s in context.Stores.ToList() on t.StoreId equals s.StoreId
+                                   join p in context.Products.ToList() on t.ProductId equals p.ProductId
+                                   where p.ProductId == id
+                                   join b in context.Brands.ToList() on p.BrandId equals b.BrandId
+                                   join c in context.Categories.ToList() on p.CategoryId equals c.CategoryId
+                                   select new { p.ProductId, p.ProductName, b.BrandName, c.CategoryName, s.StoreId, s.StoreName, t.Quantity };
+                    return Ok(filtered);
+                }
+                catch (Exception e)
+                {
+                    return NotFound(e.Message);
+                }
+
+            }
         }
 
         /// <summary>
-        /// Get inventory by product ID and store ID
+        /// Get inventory
         /// </summary>
-        /// <param name="product_id">product_id</param>
-        /// <param name="store_id">store_id</param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("p/{product_id}/s/{store_id}")]
-        public string GetInventoryProductStore([FromRoute] int product_id, int store_id)
-        {
-            Utility u = new Utility();
-            string strQuery = @"SELECT
-	p.product_id,
-	p.product_name,
-	b.brand_name,
-	c.category_name,
-	s.store_id,
-	s.store_name,
-	t.quantity
-FROM production.stocks t
-JOIN sales.stores s on t.store_id = s.store_id
-JOIN production.products p ON t.product_id = p.product_id
-JOIN production.brands b ON p.brand_id = b.brand_id
-JOIN production.categories c ON p.category_id = c.category_id
-WHERE p.product_id = " + product_id.ToString() + " AND s.store_id = " + store_id.ToString();
-            return u.SqlQueryToString(strQuery);
-        }
+//        [HttpGet]
+//        [Route("s")]
+//        public IActionResult GetInventory() {
+//            Utility u = new Utility();
+//            string strQuery = @"SELECT
+//	p.product_id,
+//	p.product_name,
+//	b.brand_name,
+//	c.category_name,
+//	s.store_id,
+//	s.store_name,
+//	t.quantity
+//FROM production.stocks t
+//JOIN sales.stores s on t.store_id = s.store_id
+//JOIN production.products p ON t.product_id = p.product_id
+//JOIN production.brands b ON p.brand_id = b.brand_id
+//JOIN production.categories c ON p.category_id = c.category_id";
+//            string response = u.SqlQueryToString(strQuery);
+//            return Ok(response);
+//        }
     }
 }
