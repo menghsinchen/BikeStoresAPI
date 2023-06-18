@@ -10,7 +10,7 @@ namespace BikeStoresAPI.Controllers
     public class StoreController : ControllerBase
     {
         /// <summary>
-        /// Get Store List
+        /// Get store list
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -36,7 +36,7 @@ namespace BikeStoresAPI.Controllers
         }
 
         /// <summary>
-        /// Get Store By Id
+        /// Get store by ID
         /// </summary>
         /// <param name="id">store_id</param>
         /// <returns></returns>
@@ -65,15 +65,15 @@ namespace BikeStoresAPI.Controllers
         }
 
         /// <summary>
-        /// Insert Store
+        /// Create a new store
         /// </summary>
-        /// <param name="store_name"></param>
-        /// <param name="phone"></param>
-        /// <param name="email"></param>
-        /// <param name="street"></param>
-        /// <param name="city"></param>
-        /// <param name="state"></param>
-        /// <param name="zip_code"></param>
+        /// <param name="store_name">store_name</param>
+        /// <param name="phone">phone</param>
+        /// <param name="email">email</param>
+        /// <param name="street">street</param>
+        /// <param name="city">city</param>
+        /// <param name="state">state</param>
+        /// <param name="zip_code">zip_code</param>
         /// <returns></returns>
         [HttpPost]
         public ActionResult InsertStore(string store_name, string phone, string email, string street, string city, string state, string zip_code) {
@@ -84,9 +84,9 @@ VALUES ('" + store_name + "', '" + phone + "', '" + email + "', '" + street + "'
         }
 
         /// <summary>
-        /// Delete Store
+        /// Delete a store by ID
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">store_id</param>
         /// <returns></returns>
         [HttpDelete]
         public ActionResult DeleteStore(int id) {

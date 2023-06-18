@@ -10,7 +10,7 @@ namespace BikeStoresAPI.Controllers
     public class InventoryController : ControllerBase
     {
         /// <summary>
-        /// Get Inventory
+        /// Get inventory
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -33,10 +33,10 @@ JOIN production.categories c ON p.category_id = c.category_id";
         }
 
         /// <summary>
-        /// Get Inventory By Product ID and Store ID
+        /// Get inventory by product ID and store ID
         /// </summary>
-        /// <param name="product_id"></param>
-        /// <param name="store_id"></param>
+        /// <param name="product_id">product_id</param>
+        /// <param name="store_id">store_id</param>
         /// <returns></returns>
         [HttpGet]
         [Route("p/{product_id}/s/{store_id}")]

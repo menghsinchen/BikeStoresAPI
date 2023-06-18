@@ -7,6 +7,12 @@ namespace BikeStoresAPI.Models
     public class Utility
     {
         private readonly string ConnStr = "Data Source=MININT-B4F6CNK;Initial Catalog=BikeStores;User ID=sa;Password=Pa$$w0rd;Connection Timeout=15";
+
+        /// <summary>
+        /// Query MS SQL Server and return a DataTable
+        /// </summary>
+        /// <param name="cmdText">Query command</param>
+        /// <returns></returns>
         public DataTable SqlQueryToDataTable(string cmdText) {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConnStr))
@@ -33,9 +39,14 @@ namespace BikeStoresAPI.Models
             return dt;
         }
 
-        public string SqlQueryToString(string strQuery)
+        /// <summary>
+        /// Query MS SQL Server and return a string with JSON format
+        /// </summary>
+        /// <param name="cmdText">Query command</param>
+        /// <returns></returns>
+        public string SqlQueryToString(string cmdText)
         {
-            DataTable dt = SqlQueryToDataTable(strQuery);
+            DataTable dt = SqlQueryToDataTable(cmdText);
             if (dt == null)
             {
                 return string.Empty;
@@ -44,6 +55,11 @@ namespace BikeStoresAPI.Models
             return JsonConvert.SerializeObject(dt, Formatting.Indented);
         }
 
+        /// <summary>
+        /// Insert, Update or Delete records and return a bool of succeeded or not
+        /// </summary>
+        /// <param name="cmdText">Insert, Update, Delete command</param>
+        /// <returns></returns>
         public bool SqlNonQuery(string cmdText)
         {
             bool isSucceeded;
