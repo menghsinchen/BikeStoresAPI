@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Reflection.Metadata;
+using System.Text;
+using System.Web.Http.Cors;
 
 namespace BikeStoresAPI.Controllers
 {
@@ -10,24 +12,21 @@ namespace BikeStoresAPI.Controllers
     [Route("[controller]")]
     public class StoreController : ControllerBase
     {
+        public BikeStoresContext context = new BikeStoresContext();
         /// <summary>
         /// Get store list
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("All")]
         public IActionResult GetStores() {
-            using (BikeStoresContext context = new BikeStoresContext())
+            try
             {
-                try
-                {
-                    List<Store> stores = context.Stores
-                        .ToList();
-                    return Ok(stores);
-                }
-                catch (Exception e)
-                {
-                    return NotFound(e.Message);
-                }
+                var stores = context.Stores.Select(s => new { s.StoreId, s.StoreName, s.Email, s.Phone, s.Street, s.City, s.State, s.ZipCode });
+                return Ok(stores);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
             }
         }
 
@@ -36,44 +35,42 @@ namespace BikeStoresAPI.Controllers
         /// </summary>
         /// <param name="id">storeId</param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("{id}")]
+        [HttpGet("{id}")]
         public IActionResult GetStore([FromRoute] int id) {
-            using (BikeStoresContext context = new BikeStoresContext())
+            try
             {
-                try
-                {
-                    Store store = context.Stores
-                        .Single(s => s.StoreId == id);
-                    return Ok(store);
-                }
-                catch (Exception e)
-                {
-                    return NotFound(e.Message);
-                }
+                var store = context.Stores.Select(s => new { s.StoreId, s.StoreName, s.Email, s.Phone, s.Street, s.City, s.State, s.ZipCode }).Single(s => s.StoreId == id);
+                return Ok(store);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
             }
         }
 
-        /// <summary>
-        /// Create a new store
-        /// </summary>
-        /// <param name="store">Store object</param>
-        /// <returns></returns>
-        [HttpPost]
-        public IActionResult PostStore([FromBody] Store store) {
-            using (BikeStoresContext context = new BikeStoresContext())
+        [HttpPost("CreateStore")]
+        public async Task<ActionResult> CreateStore()
+        {
+            try
             {
-                try
+                var csv = HttpContext.Request.Form.Files[0];
+                Stream s = csv.OpenReadStream();
+                using (StreamReader reader = new StreamReader(s, Encoding.UTF8))
                 {
-                    context.Stores.Add(store);
-                    context.SaveChanges();
-                    return Ok(store);
+                    List<string> lst = reader.ReadToEnd().Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
+                    foreach (string row in lst.Skip(1).Where(w => w.Trim() != string.Empty))
+                    {
+                        List<string> col = row.Split(',', StringSplitOptions.None).ToList();
+                        var store = new Store { StoreName = col[0], Email = col[1], Phone = col[2], Street = col[3], City = col[4], State = col[5], ZipCode = col[6] };
+                        context.Stores.Add(store);
+                        await context.SaveChangesAsync();
+                    }
                 }
-                catch (Exception e)
-                {
-                    return BadRequest(e.Message);
-                }
-
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
 
@@ -83,30 +80,18 @@ namespace BikeStoresAPI.Controllers
         /// <param name="id">storeId</param>
         /// <param name="store_after">Store object</param>
         /// <returns></returns>
-        [HttpPut]
-        [Route("{id}")]
-        public IActionResult UpdateStore([FromRoute] int id, [FromBody] Store store_after) {
-            using (BikeStoresContext context = new BikeStoresContext())
+        [HttpPut("UpdateName")]
+        public async Task<ActionResult> UpdateStore(int id, string name_after) {
+            try
             {
-                try
-                {
-                    Store store_before = context.Stores
-                        .Single(s => s.StoreId == id);
-                    store_before.StoreName = store_after.StoreName != null ? store_after.StoreName : store_before.StoreName;
-                    store_before.Phone = store_after.Phone != null ? store_after.Phone : store_before.Phone;
-                    store_before.Email = store_after.Email != null ? store_after.Email : store_before.Email;
-                    store_before.Street = store_after.Street != null ? store_after.Street : store_before.Street;
-                    store_before.City = store_after.City != null ? store_after.City : store_before.City;
-                    store_before.State = store_after.State != null ? store_after.State : store_before.State;
-                    store_before.ZipCode = store_after.ZipCode != null ? store_after.ZipCode : store_before.ZipCode;
-                    context.SaveChanges();
-                    return Ok();
-                }
-                catch (Exception e)
-                {
-                    return BadRequest(e.Message);
-                }
-
+                Store store_before = context.Stores.Single(s => s.StoreId == id);
+                store_before.StoreName = !string.IsNullOrEmpty(name_after) ? name_after : store_before.StoreName;
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
 
@@ -115,25 +100,42 @@ namespace BikeStoresAPI.Controllers
         /// </summary>
         /// <param name="id">storeId</param>
         /// <returns></returns>
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteStore([FromRoute] int id) {
-            using (BikeStoresContext context = new BikeStoresContext())
+        [HttpDelete("Delete")]
+        public async Task<ActionResult> DeleteStore(int id) {
+            try
             {
-                try
-                {
-                    Store store = context.Stores
-                        .Single(s => s.StoreId == id);
-                    context.Remove(store);
-                    context.SaveChanges();
-                    return Ok();
-                }
-                catch (Exception e)
-                {
-                    return BadRequest(e.Message);
-                }
-
+                Store store = context.Stores
+                    .Single(s => s.StoreId == id);
+                context.Remove(store);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
+
+        /// <summary>
+        /// Create new stores
+        /// </summary>
+        /// <param name="stores">Array of stores</param>
+        /// <returns></returns>
+        //[HttpPost("Create")]
+        //public IActionResult CreateStore([FromBody] List<Store> stores) {
+        //    try
+        //    {
+        //        foreach (Store store in stores)
+        //        {
+        //            context.Stores.Add(store);
+        //        }
+        //        context.SaveChanges();
+        //        return Ok();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
     }
 }

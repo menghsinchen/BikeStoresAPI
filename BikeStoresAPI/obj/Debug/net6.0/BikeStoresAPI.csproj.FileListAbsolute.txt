@@ -92,3 +92,8 @@ C:\Milena\Code\BikeStoresAPI\BikeStoresAPI\bin\Debug\net6.0\runtimes\win\lib\net
 C:\Milena\Code\BikeStoresAPI\BikeStoresAPI\bin\Debug\net6.0\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
 C:\Milena\Code\BikeStoresAPI\BikeStoresAPI\bin\Debug\net6.0\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll
 C:\Milena\Code\BikeStoresAPI\BikeStoresAPI\bin\Debug\net6.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
+C:\Milena\Code\BikeStoresAPI\BikeStoresAPI\bin\Debug\net6.0\System.Web.Cors.dll
+C:\Milena\Code\BikeStoresAPI\BikeStoresAPI\bin\Debug\net6.0\System.Net.Http.Formatting.dll
+C:\Milena\Code\BikeStoresAPI\BikeStoresAPI\bin\Debug\net6.0\System.Web.Http.dll
+C:\Milena\Code\BikeStoresAPI\BikeStoresAPI\bin\Debug\net6.0\System.Web.Http.Cors.dll
+C:\Milena\Code\BikeStoresAPI\BikeStoresAPI\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
