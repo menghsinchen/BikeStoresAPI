@@ -1,14 +1,14 @@
 # BikeStoresAPI
  ASP.NET Core Web API, based on a sample database on MS SQL Server.
 
-Sample Database:
-https://www.sqlservertutorial.net/sql-server-sample-database/
-
 ## System Design:
 
 <img width="950" alt="System Design" src="https://github.com/menghsinchen/BikeStoresAPI/assets/102609505/3cecc19d-f48f-4492-8375-0ad7d8af28a4">
 
 ## ERD:
+
+Sample Database:
+https://www.sqlservertutorial.net/sql-server-sample-database/
 
 <img width="950" alt="ERD" src="https://github.com/menghsinchen/BikeStoresAPI/assets/102609505/f6249ee7-5d84-4ff1-8b87-26387fd42d93">
 
