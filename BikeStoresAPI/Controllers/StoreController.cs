@@ -13,6 +13,7 @@ namespace BikeStoresAPI.Controllers
     public class StoreController : ControllerBase
     {
         public BikeStoresContext context = new BikeStoresContext();
+
         /// <summary>
         /// Get store list
         /// </summary>
@@ -104,8 +105,7 @@ namespace BikeStoresAPI.Controllers
         public async Task<ActionResult> DeleteStore(int id) {
             try
             {
-                Store store = context.Stores
-                    .Single(s => s.StoreId == id);
+                Store store = context.Stores.Single(s => s.StoreId == id);
                 context.Remove(store);
                 await context.SaveChangesAsync();
                 return Ok();
